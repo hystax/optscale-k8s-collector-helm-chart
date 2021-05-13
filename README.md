@@ -37,5 +37,3 @@ nginx.service.internalPort | Internal NGINX Server Port Number | `4433`
 nginx.passwd | MD5 hash of the password to login to the Agent metrics | `$apr1$3ZNqkB28$hpCxPgci/AqdV0lTS1Q9N0` -> `LxY83mXr`
 nginx.service.enabledExternalPort | use `true` for `NodePort` and `false` - `LoadBalancer`| `false`
 nginx.service.externalPort | Agent external Node port number | `31222`
-
-Source prometheus chart: https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus

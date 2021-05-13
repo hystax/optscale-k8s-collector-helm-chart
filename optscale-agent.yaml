@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: optscale
 ---
-# Source: optscale-agent/charts/kube-state-metrics/templates/serviceaccount.yaml
+# Source: optscale-k8s-collector/charts/kube-state-metrics/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -18,137 +18,62 @@ metadata:
 imagePullSecrets:
   []
 ---
-# Source: optscale-agent/templates/node-exporter/serviceaccount.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/node-exporter/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     component: "node-exporter"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-node-exporter
+  name: monitoring-prometheus-node-exporter
   namespace: optscale
   annotations:
     {}
 ---
-# Source: optscale-agent/templates/pushgateway/serviceaccount.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/pushgateway/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     component: "pushgateway"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-pushgateway
+  name: monitoring-prometheus-pushgateway
   namespace: optscale
   annotations:
     {}
 ---
-# Source: optscale-agent/templates/server/serviceaccount.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/server/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
     component: "server"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-server
+  name: monitoring-prometheus-server
   namespace: optscale
   annotations:
     {}
 ---
-# Source: optscale-agent/templates/nginx/nginx.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-conf
-  namespace: optscale
-data:
-  default.conf: |
-    server {
-        listen 443 ssl;
-        ssl_certificate     /etc/nginx/conf.d/tls.crt;
-        ssl_certificate_key /etc/nginx/conf.d/tls.key;
-        ssl_verify_client off;
-        server_name localhost;
-
-        location / {
-            proxy_set_header X-WEBAUTH-USER $remote_user;
-            proxy_set_header Authorization "";
-            proxy_pass http://monitoring-optscale-agent-server:80;
-            auth_basic "PrometheusAuthProxy";
-            auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
-        }
-    }
-  .htpasswd: |
-    optscale:$apr1$AH5oHJMN$LSluIuSdDDtlpSp0WMi9A1
-  tls.crt: |
-    -----BEGIN CERTIFICATE-----
-    MIIDCjCCAfKgAwIBAgIRAMWPGZM+PGJg5WoF7SF42/MwDQYJKoZIhvcNAQELBQAw
-    EjEQMA4GA1UEAxMHZm9vLmNvbTAeFw0yMTA1MTMxNDQ2MzZaFw0yMjA1MTMxNDQ2
-    MzZaMBIxEDAOBgNVBAMTB2Zvby5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
-    ggEKAoIBAQC9+uaJQlMaKRj1ndSB2sX875EnXNkR4Zma0iWQRy1wcmNyxlc4Te0y
-    /JX8HSJxkavFkpZP+nzdrXSvlNpHNkZTsD26d90vCUiNQhtTurY7jJ4s82UREe81
-    p8N6AijCRunPnkttPjIoiGO9zRvam3AzNfXyUDbM0ebnHtInEGHaQ/H4iZlbEZZh
-    i7gSPlgfHTpQvl4K7Z+pCifAxdJkXF3YlzTQctoJOgbpwwH86UqUcTwoh1Kw24Iu
-    cvp9MTjNwwmD2H1934x8PP+ptHqC1gkGyYEzDjaHjFSf196kstKMkQoBIj9wW5tc
-    Tqc13gZIVtK4/lJjBxCqUX2Ol4nZBmVVAgMBAAGjWzBZMA4GA1UdDwEB/wQEAwIF
-    oDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDAYDVR0TAQH/BAIwADAa
-    BgNVHREEEzARgglsb2NhbGhvc3SHBH8AAAEwDQYJKoZIhvcNAQELBQADggEBAGYn
-    83c8BSp7ZZPA9jCb9cCoK7dFv2e1zhi3/OQFqoktdKuM0tDuqCcZJqxEfoCTDqSZ
-    jg37bLmUkpzPKmke/MI7NxiHMlaKLYNt8CTo1hk1AUvzfuOaiE48z/Pjuof8TKG6
-    YCtyOiD3wa0fl33p033/AGG0NaUNJz0tLzINQIJ2He6rpA1Agf5O/9wE1lSR9b5R
-    rwUizNSOBwB57lbWMu2Uq6xuhDJyL2LZ7LPDQ0weX700w2Ov0beECeqKzLq9kjox
-    SMMhkF4rPUqftQRO1Mf+q/tvpz6hZPl5b8Q3dQ6ZY0Tx2DV+6hKqwzKste21RDkk
-    8FmREtfFYV2ppbXB7OE=
-    -----END CERTIFICATE-----
-    
-  tls.key: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEpAIBAAKCAQEAvfrmiUJTGikY9Z3UgdrF/O+RJ1zZEeGZmtIlkEctcHJjcsZX
-    OE3tMvyV/B0icZGrxZKWT/p83a10r5TaRzZGU7A9unfdLwlIjUIbU7q2O4yeLPNl
-    ERHvNafDegIowkbpz55LbT4yKIhjvc0b2ptwMzX18lA2zNHm5x7SJxBh2kPx+ImZ
-    WxGWYYu4Ej5YHx06UL5eCu2fqQonwMXSZFxd2Jc00HLaCToG6cMB/OlKlHE8KIdS
-    sNuCLnL6fTE4zcMJg9h9fd+MfDz/qbR6gtYJBsmBMw42h4xUn9fepLLSjJEKASI/
-    cFubXE6nNd4GSFbSuP5SYwcQqlF9jpeJ2QZlVQIDAQABAoIBAQCcHPcgR64+SxNF
-    kmK0KnCTvtFKxVNjDD3LKXDQtIy0YGs0P6Qgkniec01UlSReqtO6URDPvAirqQO/
-    3NPZvNHhp2uyNRk+s6Q439/Q2BczrAO28HNWqaQmNSu+sNOJgfhUMcHNjVRuVlWP
-    /GItK5nxmx/19NBzUvEpbvxGOYIPdmYK2YLAhVdv5/z6kxeWam+Z8iVcfG8yXmML
-    HS+M/8yqLr+v1EjfJ12oe2iLwNyKjdXJGuS+pmxrCVTqNY9Jgoj2Ey4o7ysNuaq8
-    xQnNqPu3vDYjvwTx7EPsCYCLcFnvAUNVPGFOD4+E+kxuUqtx2PAixXP+7X8YJ/Dg
-    eBSqNctBAoGBAPF2BFlkWdqrC2NJ4orL/XOuSnegpH9S+jqOnPXLwgWcPyVdSllZ
-    7cA46e5DffxhydRlgnXgTj21qAHObsmBCYntlup6ZBgdgmNAAGpflEWo75Og5OY3
-    +ND/Ml4Ff8lteZI6ZBDacuLnwZg/EyIW4Qc4Vq0UK+L5yFlf8eddta9JAoGBAMlr
-    VailsAENaMI3mhLG6+oEvT3ltXsxSldsDqqPFG2UVfW66yiyy6PaOkh70L7oiLvI
-    Jk8+zRWJlW/KdhDg9iR6B1UGtVgIzLEDTXMCVtphTX96WZGjxo8Z7EL7eMr3bndu
-    hH/SiEM6pzJPDVG2qds6lFBg5zlWaYP5hCxrimmtAoGAch2BjrHTmXmu5xzbGRex
-    UAO2I/Vi6N3Rbu1JlwzWRIqEeWcupS3QJEGBpV52Y1nf5iaXUphQwe9hWIE0cL0w
-    QeRsp6JyPcdsgPWVfLBxRb7CgzXOGFOpnzSMnEzjCNJZW1eHRUPIeh5nq0lcBIdl
-    kGD67c+TsjC0lDC5BcyO+ikCgYBRpabVdESCSLM8d1mHXwdml4E2xBTq2TIveegA
-    D3vSZ5zovVpx5vhRdTbHBxm5KX2z0RBmcyijIGBpLoLpmKduZeDvAIcmJnsDDjmo
-    8zvNzj+h+zCvrtngTDvPcyyl6eLnmu8u+WKvDemUpSLbCtaTvY09f+p6/aJMEysW
-    7ojvCQKBgQCd6MbLDlCC5DhGC64Boz4f4mxtM+dzwaRtK25kPds0tpej0OeWdrb1
-    wjH3BAWELJXBcEFsvli1hKnbNu5Fn/1OoOnzgLrPhANT1X9gnIeqSjdVNKaYhXit
-    1PalojdaQ6QYhVaF6SndLvRvmhFZZLcXOuYaYgis3N5fJH/t1HY1Qg==
-    -----END RSA PRIVATE KEY-----
----
-# Source: optscale-agent/templates/server/cm.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/server/cm.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
     component: "server"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-server
+  name: monitoring-prometheus-server
   namespace: optscale
 data:
   alerting_rules.yml: |
@@ -423,7 +348,82 @@ data:
   rules: |
     {}
 ---
-# Source: optscale-agent/charts/kube-state-metrics/templates/role.yaml
+# Source: optscale-k8s-collector/templates/nginx.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+  namespace: optscale
+data:
+  default.conf: |
+    server {
+        listen 443 ssl;
+        ssl_certificate     /etc/nginx/conf.d/tls.crt;
+        ssl_certificate_key /etc/nginx/conf.d/tls.key;
+        ssl_verify_client off;
+        server_name localhost;
+
+        location / {
+            proxy_set_header X-WEBAUTH-USER $remote_user;
+            proxy_set_header Authorization "";
+            proxy_pass http://monitoring-prometheus-server:80;
+            auth_basic "OptScaleCollectorAuthProxy";
+            auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+        }
+    }
+  .htpasswd: |
+    optscale:$apr1$6MRtZOFo$BioTFU7.DRyq3f6ZDVS11.
+  tls.crt: |
+    -----BEGIN CERTIFICATE-----
+    MIIDCjCCAfKgAwIBAgIRAI8NCi1N/PSUjOFr7jcov/swDQYJKoZIhvcNAQELBQAw
+    EjEQMA4GA1UEAxMHZm9vLmNvbTAeFw0yMTA1MTMyMTQxMDJaFw0yMjA1MTMyMTQx
+    MDJaMBIxEDAOBgNVBAMTB2Zvby5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+    ggEKAoIBAQDXFjuLnSLbaT8YF1VEWQvhAW72eoYRbuHIL/Bz1l/idhk3Z2KgH1Rp
+    aFsI/XnGkefSjCv3ElfpImxiLTqWUGgtu5ewUwiK29Ac2MKGYEzCeuks22jZYrAT
+    2PbUzIjrAAMn6XjeMaFASzVKRRbWUquokDh2nalRLmYWuVvpyyq8S8R7T6f/VdcU
+    0e6dApP/INwZcL7Jp+L/TZTG/hRpeA6ZF/csBZSmPbO2+uIaIykPbJtwWkNwQhep
+    Qy9DlbsIM+gnJkb4YkdQJydqKGz6Cmp4M1DXktGLXs6p4sOWbDKVT8zUFLD3suEq
+    +Yn3WT1h5E30Ly0WTcNWYMlpsNXeGWvdAgMBAAGjWzBZMA4GA1UdDwEB/wQEAwIF
+    oDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDAYDVR0TAQH/BAIwADAa
+    BgNVHREEEzARgglsb2NhbGhvc3SHBH8AAAEwDQYJKoZIhvcNAQELBQADggEBAHAD
+    MQoUPGnh56Wsj+IqunlLJCilsUtTmkjuo/LydLqdQeQObrmJ1ZNxz+wo8ZHqhpJ9
+    UoOhlEYazaYfl2O1THRTz0kyE6esdUrHjKmRkjf9V3ndeIzgZ04ZkbpUNf9BSZlF
+    GbRNvt+EHC1rfd08SHKXPrECtQGiQSdOmuJJXfy6xhfSvmufvG+Ijc8Twy8gl6/p
+    Z6YoY6Lr7JKPMf0wRVgCMLbgvfT+GGFjK4IrwUfKHsPNnx2YdwqremgIUuTD94v3
+    ePi2WMmZAUkkSYRssFukbJCOtjD+QCwYhVgouCfCS5Zr057Fgz1z2E+Z6gRXHcgI
+    2lThBjnTRUtO2wRXbe0=
+    -----END CERTIFICATE-----
+    
+  tls.key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEogIBAAKCAQEA1xY7i50i22k/GBdVRFkL4QFu9nqGEW7hyC/wc9Zf4nYZN2di
+    oB9UaWhbCP15xpHn0owr9xJX6SJsYi06llBoLbuXsFMIitvQHNjChmBMwnrpLNto
+    2WKwE9j21MyI6wADJ+l43jGhQEs1SkUW1lKrqJA4dp2pUS5mFrlb6csqvEvEe0+n
+    /1XXFNHunQKT/yDcGXC+yafi/02Uxv4UaXgOmRf3LAWUpj2ztvriGiMpD2ybcFpD
+    cEIXqUMvQ5W7CDPoJyZG+GJHUCcnaihs+gpqeDNQ15LRi17OqeLDlmwylU/M1BSw
+    97LhKvmJ91k9YeRN9C8tFk3DVmDJabDV3hlr3QIDAQABAoIBADujkoc33v5vxGrt
+    rVryRfTx7M6zUpFq6XgUsturyZKFpKBULmivxzwjD3sCrc19j4Y2D8rGb1HZlavz
+    VpdvXDOyHHFr1KaMJLya7fVMpnwWkKk7fWspjiEyu95tiFmA+18JwdX6dPfa4r/h
+    QF/VNHvc4YsiVFyKPQx4ASBmkUb8SSJF3zmGqINzGupw254Wuro9DEgBAJl/e++y
+    SfdCMcWyFoub4OupwibhNg0emKkuL9khvqb0N0jO5gT7TIQfrorUZt9EJWUUH6Ig
+    1Eg6r3v86oSPE0EBC9jpRbzltqGprowEZC8EojHDwaHc/QSlFMLCAtLZ7Rsf4Po0
+    0XnfbxECgYEA8dRqZ9qfCkzFHoNQVeCCdSDl7eIFoU6Twkc0WxW7Edu6eCm9tyYL
+    Fih13YJgpCdxy+pWQRCl2EshxlX/72daH5C9hq+N42IiprSkjWis7dC/N/fylYPA
+    Kdeb2KO7ru10Ge8Upf89EzPllAUW+qxAfjjyCxPJ7PLca9yoBiCXop8CgYEA47Co
+    e9O2Q5hFL7SM6OBRh1vVugMAhbn3VjOgkJBeeRtNqIPorpE78a3NlYy0vpy2N7mc
+    Nv60G8vQZPw3ubeOoYBVrkHMt6Y0rB+d0SCQ8Fw4VJWPG0n/DCP4KK1xS7VgvT00
+    G5ospQVdDkRTEZr04UI3Iy5YVeUb8lfQdy0C/AMCgYAv7datALJ2uyJyWrpIWvfg
+    OQX5MMvG3akBX1VsHBF4h6EcgcFdFEgsOxapMVbwEfVG4gn4WVFVXgaypYbVLxm4
+    mdpGYHLxtxiBC9p1QGLNu4q6kATfRz6FzHrR5BmloOBa53yjLcQwEyAURzH3ur4J
+    hkXKlkB2Gug+5HvUww7qpwKBgD+cCeXWJrRJpQKH2Vnx2TUMlfAKiKnTY2MEt1XL
+    z2jcFN0ARRAH6QxCtw2RqqkZ1NpKk3bVv3GIhibAQ70xp7o8xTMSlOO1nj978bYL
+    +BH+YYpX4gwIpyU4I0sR8XXqLSWRJK6VauWLUwz6T466kLEhs4+zkeAlSqJwn/+7
+    ZnsLAoGAQ7rpyENgwKCbDVHdqQSuRfH7SWCKXPo5GftphOKoGKJKhG132DWl3Ev+
+    NCuXuNrYBnbfTfoG+ezPY02Riu88AXGyt/0TBTqzGL1BKNAB59UyojT0p11D5wyp
+    Sr3GYeK7ToRM3pR1wgxhco5H9SACId93VnbkhZT0dkDlGlap4u4=
+    -----END RSA PRIVATE KEY-----
+---
+# Source: optscale-k8s-collector/charts/kube-state-metrics/templates/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -570,31 +570,31 @@ rules:
     - volumeattachments
   verbs: ["list", "watch"]
 ---
-# Source: optscale-agent/templates/pushgateway/clusterrole.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/pushgateway/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     component: "pushgateway"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-pushgateway
+  name: monitoring-prometheus-pushgateway
 rules:
   []
 ---
-# Source: optscale-agent/templates/server/clusterrole.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/server/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     component: "server"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-server
+  name: monitoring-prometheus-server
 rules:
   - apiGroups:
       - ""
@@ -626,7 +626,7 @@ rules:
     verbs:
       - get
 ---
-# Source: optscale-agent/charts/kube-state-metrics/templates/clusterrolebinding.yaml
+# Source: optscale-k8s-collector/charts/kube-state-metrics/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -645,47 +645,47 @@ subjects:
   name: monitoring-kube-state-metrics
   namespace: optscale
 ---
-# Source: optscale-agent/templates/pushgateway/clusterrolebinding.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/pushgateway/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
     component: "pushgateway"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-pushgateway
+  name: monitoring-prometheus-pushgateway
 subjects:
   - kind: ServiceAccount
-    name: monitoring-optscale-agent-pushgateway
+    name: monitoring-prometheus-pushgateway
     namespace: optscale
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: monitoring-optscale-agent-pushgateway
+  name: monitoring-prometheus-pushgateway
 ---
-# Source: optscale-agent/templates/server/clusterrolebinding.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/server/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
     component: "server"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-server
+  name: monitoring-prometheus-server
 subjects:
   - kind: ServiceAccount
-    name: monitoring-optscale-agent-server
+    name: monitoring-prometheus-server
     namespace: optscale
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: monitoring-optscale-agent-server
+  name: monitoring-prometheus-server
 ---
-# Source: optscale-agent/charts/kube-state-metrics/templates/service.yaml
+# Source: optscale-k8s-collector/charts/kube-state-metrics/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -710,7 +710,85 @@ spec:
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/instance: monitoring
 ---
-# Source: optscale-agent/templates/nginx/nginx.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/node-exporter/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  labels:
+    component: "node-exporter"
+    app: prometheus
+    release: monitoring
+    chart: prometheus-13.8.0
+    heritage: Helm
+  name: monitoring-prometheus-node-exporter
+  namespace: optscale
+spec:
+  clusterIP: None
+  ports:
+    - name: metrics
+      port: 9100
+      protocol: TCP
+      targetPort: 9100
+  selector:
+    component: "node-exporter"
+    app: prometheus
+    release: monitoring
+  type: "ClusterIP"
+---
+# Source: optscale-k8s-collector/charts/prometheus/templates/pushgateway/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/probe: pushgateway
+  labels:
+    component: "pushgateway"
+    app: prometheus
+    release: monitoring
+    chart: prometheus-13.8.0
+    heritage: Helm
+  name: monitoring-prometheus-pushgateway
+  namespace: optscale
+spec:
+  ports:
+    - name: http
+      port: 9091
+      protocol: TCP
+      targetPort: 9091
+  selector:
+    component: "pushgateway"
+    app: prometheus
+    release: monitoring
+  type: "ClusterIP"
+---
+# Source: optscale-k8s-collector/charts/prometheus/templates/server/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component: "server"
+    app: prometheus
+    release: monitoring
+    chart: prometheus-13.8.0
+    heritage: Helm
+  name: monitoring-prometheus-server
+  namespace: optscale
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 9090
+  selector:
+    component: "server"
+    app: prometheus
+    release: monitoring
+  sessionAffinity: None
+  type: "ClusterIP"
+---
+# Source: optscale-k8s-collector/templates/nginx.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -718,7 +796,7 @@ metadata:
   namespace: optscale
   labels:
     app: monitoring-nginx
-    chart: optscale-agent-0.1.0
+    chart: optscale-k8s-collector-0.1.0
     release: monitoring
 spec:
   type: LoadBalancer
@@ -732,101 +810,23 @@ spec:
     app: monitoring-nginx
     release: monitoring
 ---
-# Source: optscale-agent/templates/node-exporter/svc.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    prometheus.io/scrape: "true"
-  labels:
-    component: "node-exporter"
-    app: optscale-agent
-    release: monitoring
-    chart: optscale-agent-0.1.0
-    heritage: Helm
-  name: monitoring-optscale-agent-node-exporter
-  namespace: optscale
-spec:
-  clusterIP: None
-  ports:
-    - name: metrics
-      port: 9100
-      protocol: TCP
-      targetPort: 9100
-  selector:
-    component: "node-exporter"
-    app: optscale-agent
-    release: monitoring
-  type: "ClusterIP"
----
-# Source: optscale-agent/templates/pushgateway/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    prometheus.io/probe: pushgateway
-  labels:
-    component: "pushgateway"
-    app: optscale-agent
-    release: monitoring
-    chart: optscale-agent-0.1.0
-    heritage: Helm
-  name: monitoring-optscale-agent-pushgateway
-  namespace: optscale
-spec:
-  ports:
-    - name: http
-      port: 9091
-      protocol: TCP
-      targetPort: 9091
-  selector:
-    component: "pushgateway"
-    app: optscale-agent
-    release: monitoring
-  type: "ClusterIP"
----
-# Source: optscale-agent/templates/server/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    component: "server"
-    app: optscale-agent
-    release: monitoring
-    chart: optscale-agent-0.1.0
-    heritage: Helm
-  name: monitoring-optscale-agent-server
-  namespace: optscale
-spec:
-  ports:
-    - name: http
-      port: 80
-      protocol: TCP
-      targetPort: 9090
-  selector:
-    component: "server"
-    app: optscale-agent
-    release: monitoring
-  sessionAffinity: None
-  type: "ClusterIP"
----
-# Source: optscale-agent/templates/node-exporter/daemonset.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/node-exporter/daemonset.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
     component: "node-exporter"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-node-exporter
+  name: monitoring-prometheus-node-exporter
   namespace: optscale
 spec:
   selector:
     matchLabels:
       component: "node-exporter"
-      app: optscale-agent
+      app: prometheus
       release: monitoring
   updateStrategy:
     type: RollingUpdate
@@ -834,14 +834,14 @@ spec:
     metadata:
       labels:
         component: "node-exporter"
-        app: optscale-agent
+        app: prometheus
         release: monitoring
-        chart: optscale-agent-0.1.0
+        chart: prometheus-13.8.0
         heritage: Helm
     spec:
-      serviceAccountName: monitoring-optscale-agent-node-exporter
+      serviceAccountName: monitoring-prometheus-node-exporter
       containers:
-        - name: optscale-agent-node-exporter
+        - name: prometheus-node-exporter
           image: "quay.io/prometheus/node-exporter:v1.1.2"
           imagePullPolicy: "IfNotPresent"
           args:
@@ -884,7 +884,7 @@ spec:
           hostPath:
             path: /
 ---
-# Source: optscale-agent/charts/kube-state-metrics/templates/deployment.yaml
+# Source: optscale-k8s-collector/charts/kube-state-metrics/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1021,75 +1021,37 @@ spec:
           initialDelaySeconds: 5
           timeoutSeconds: 5
 ---
-# Source: optscale-agent/templates/nginx/nginx.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: monitoring-nginx
-  namespace: optscale
-  labels:
-    app: monitoring-nginx
-    chart: optscale-agent-0.1.0
-    release: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: monitoring-nginx
-      release: monitoring
-  template:
-    metadata:
-      labels:
-        app: monitoring-nginx
-        release: monitoring
-    spec:
-      containers:
-      - name: monitoring-nginx
-        image: nginx:1.17.1
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 4433
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/nginx/conf.d
-      volumes:
-      - name: shared
-        emptyDir: {}
-      - name: config-volume
-        configMap:
-          name: nginx-conf
----
-# Source: optscale-agent/templates/pushgateway/deploy.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/pushgateway/deploy.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     component: "pushgateway"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-pushgateway
+  name: monitoring-prometheus-pushgateway
   namespace: optscale
 spec:
   selector:
     matchLabels:
       component: "pushgateway"
-      app: optscale-agent
+      app: prometheus
       release: monitoring
   replicas: 1
   template:
     metadata:
       labels:
         component: "pushgateway"
-        app: optscale-agent
+        app: prometheus
         release: monitoring
-        chart: optscale-agent-0.1.0
+        chart: prometheus-13.8.0
         heritage: Helm
     spec:
-      serviceAccountName: monitoring-optscale-agent-pushgateway
+      serviceAccountName: monitoring-prometheus-pushgateway
       containers:
-        - name: optscale-agent-pushgateway
+        - name: prometheus-pushgateway
           image: "prom/pushgateway:v1.3.1"
           imagePullPolicy: "IfNotPresent"
           args:
@@ -1113,37 +1075,37 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
 ---
-# Source: optscale-agent/templates/server/deploy.yaml
+# Source: optscale-k8s-collector/charts/prometheus/templates/server/deploy.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
     component: "server"
-    app: optscale-agent
+    app: prometheus
     release: monitoring
-    chart: optscale-agent-0.1.0
+    chart: prometheus-13.8.0
     heritage: Helm
-  name: monitoring-optscale-agent-server
+  name: monitoring-prometheus-server
   namespace: optscale
 spec:
   selector:
     matchLabels:
       component: "server"
-      app: optscale-agent
+      app: prometheus
       release: monitoring
   replicas: 1
   template:
     metadata:
       labels:
         component: "server"
-        app: optscale-agent
+        app: prometheus
         release: monitoring
-        chart: optscale-agent-0.1.0
+        chart: prometheus-13.8.0
         heritage: Helm
     spec:
-      serviceAccountName: monitoring-optscale-agent-server
+      serviceAccountName: monitoring-prometheus-server
       containers:
-        - name: optscale-agent-server-configmap-reload
+        - name: prometheus-server-configmap-reload
           image: "jimmidyson/configmap-reload:v0.5.0"
           imagePullPolicy: "IfNotPresent"
           args:
@@ -1156,7 +1118,7 @@ spec:
               mountPath: /etc/config
               readOnly: true
 
-        - name: optscale-agent-server
+        - name: prometheus-server
           image: "quay.io/prometheus/prometheus:v2.26.0"
           imagePullPolicy: "IfNotPresent"
           args:
@@ -1205,7 +1167,45 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: monitoring-optscale-agent-server
+            name: monitoring-prometheus-server
         - name: storage-volume
           emptyDir:
             {}
+---
+# Source: optscale-k8s-collector/templates/nginx.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitoring-nginx
+  namespace: optscale
+  labels:
+    app: monitoring-nginx
+    chart: optscale-k8s-collector-0.1.0
+    release: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monitoring-nginx
+      release: monitoring
+  template:
+    metadata:
+      labels:
+        app: monitoring-nginx
+        release: monitoring
+    spec:
+      containers:
+      - name: monitoring-nginx
+        image: nginx:1.17.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4433
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: shared
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: nginx-conf

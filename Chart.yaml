@@ -1,10 +1,12 @@
 apiVersion: v2
-name: optscale-agent
+name: optscale-k8s-collector
 version: 0.1.0
-description: OptScale Kubernetes Prometheus based agent.
+description: OptScale Kubernetes Collector.
 type: application
 dependencies:
   - name: kube-state-metrics
-    version: "2.13.*"
+    version: "2.13.3"
     repository: https://kubernetes.github.io/kube-state-metrics
-    condition: kubeStateMetrics.enabled
+  - name: prometheus
+    version: "13.8.0"
+    repository: https://prometheus-community.github.io/helm-charts
