@@ -1,0 +1,90 @@
+{{- if .Values.nginx.enabled -}}
+{{- $config := .Values.nginx -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+{{ include "prometheus.namespace" . | indent 2 }}
+data:
+  default.conf: |
+    server {
+        listen 443 ssl;
+        ssl_certificate     /etc/nginx/conf.d/tls.crt;
+        ssl_certificate_key /etc/nginx/conf.d/tls.key;
+        ssl_verify_client off;
+        server_name localhost;
+
+        location / {
+            proxy_set_header X-WEBAUTH-USER $remote_user;
+            proxy_set_header Authorization "";
+            proxy_pass http://{{ template "prometheus.server.fullname" . }}:80;
+            auth_basic "PrometheusAuthProxy";
+            auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+        }
+    }
+  .htpasswd: |
+    {{ .Values.nginx.passwd }}
+{{ ( include "optscale-agent.gen-certs" . ) | indent 2 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-{{ $config.name }}
+{{ include "prometheus.namespace" . | indent 2 }}
+  labels:
+    app: {{ .Release.Name }}-{{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  type: {{ $config.service.type }}
+  ports:
+    - port: {{ $config.service.internalPort }}
+{{ if .Values.nginx.service.enabledExternalPort }}
+      nodePort: {{ $config.service.externalPort }}
+{{ end }}
+      targetPort: {{ $config.internalPort }}
+      protocol: TCP
+      name: {{ .Release.Name }}-{{ $config.name }}
+  selector:
+    app: {{ .Release.Name }}-{{ $config.name }}
+    release: {{ .Release.Name }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ $config.name }}
+{{ include "prometheus.namespace" . | indent 2 }}
+  labels:
+    app: {{ .Release.Name }}-{{ $config.name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ $config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-{{ $config.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-{{ $config.name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Release.Name }}-{{ $config.name }}
+        image: {{ $config.agent_nginx.image.repository }}:{{ $config.agent_nginx.image.tag }}
+        imagePullPolicy: {{ $config.agent_nginx.image.pullPolicy }}
+        ports:
+        - containerPort: {{ $config.service.internalPort }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: shared
+        emptyDir: {}
+      - name: config-volume
+        configMap:
+          name: nginx-conf
+
+{{- end -}}

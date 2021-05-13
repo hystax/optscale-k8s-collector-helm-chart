@@ -1,0 +1,10 @@
+apiVersion: v2
+name: optscale-agent
+version: 0.1.0
+description: OptScale Kubernetes Prometheus based agent.
+type: application
+dependencies:
+  - name: kube-state-metrics
+    version: "2.13.*"
+    repository: https://kubernetes.github.io/kube-state-metrics
+    condition: kubeStateMetrics.enabled
