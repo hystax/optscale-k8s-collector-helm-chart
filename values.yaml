@@ -3,7 +3,7 @@ nginx:
   name: nginx
   replicaCount: 1
   internalPort: 443
-  passwd: $apr1$3ZNqkB28$hpCxPgci/AqdV0lTS1Q9N0
+  passwd: optscale:$apr1$VELgzrP7$YYedDiHsEmoQ/xcUhWkrO0
   service:
     type: LoadBalancer
     enabledExternalPort: false

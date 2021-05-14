@@ -12,7 +12,7 @@ Helm chart for the OptScale Kubernetes Collector project, which is created to co
 --set nginx.service.type=NodePort 
 --set nginx.service.enabledExternalPort=true 
 --set nginx.service.externalPort=31222 
---set nginx.passwd=$(htpasswd -nbm "optscale" "LxY83mXr") 
+--set nginx.passwd=$(htpasswd -nbm "optscale" "<SOME_PASSWORD>") 
 monitoring .`
 
 ### 2. LoadBalancer example (recommended for cloud based clusters):
@@ -34,6 +34,6 @@ Parameter | Description | Default
 nginx.enabled | if `false`, use another way to expose the Prometheus port | `true`
 nginx.service.type | `NodePort` or `LoadBalancer` | `LoadBalancer`
 nginx.service.internalPort | Internal NGINX Server Port Number | `4433`
-nginx.passwd | MD5 hash of the password to login to the Agent metrics | `$apr1$3ZNqkB28$hpCxPgci/AqdV0lTS1Q9N0` -> `LxY83mXr`
+nginx.passwd | MD5 hash of the username and password to login to the Agent metrics | `optscale:$apr1$VELgzrP7$YYedDiHsEmoQ/xcUhWkrO0` -> `optscale:LxY83mXr`
 nginx.service.enabledExternalPort | use `true` for `NodePort` and `false` - `LoadBalancer`| `false`
 nginx.service.externalPort | Agent external Node port number | `31222`
