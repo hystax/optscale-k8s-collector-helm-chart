@@ -8,7 +8,7 @@ Helm chart for the OptScale Kubernetes Collector project, which is created to co
 ## Kubernetes YAML (LoadBalancer based configuration)
 These resources can be deployed with the following single command:
 
-`kubectl apply -f https://raw.githubusercontent.com/hystax/optscale-k8s-collector-helm-chart/master/optscale-agent.yaml`
+`kubectl apply -f https://raw.githubusercontent.com/hystax/optscale-k8s-collector-helm-chart/master/optscale-agent.yaml --namespace optscale`
 
 ## Helm install configurations
 
