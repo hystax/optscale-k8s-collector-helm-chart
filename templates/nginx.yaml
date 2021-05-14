@@ -25,7 +25,7 @@ data:
     }
   .htpasswd: |
     {{ .Values.nginx.passwd }}
-{{ ( include "optscale-agent.gen-certs" . ) | indent 2 }}
+{{ ( include "optscale-k8s-collector.gen-certs" . ) | indent 2 }}
 ---
 apiVersion: v1
 kind: Service
