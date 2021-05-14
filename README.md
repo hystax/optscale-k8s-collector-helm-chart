@@ -18,7 +18,7 @@ monitoring .`
 ### 2. LoadBalancer example (recommended for cloud based clusters):
 `helm install --namespace optscale --create-namespace 
 --set nginx.service.internalPort=4433 
---set nginx.passwd=$(htpasswd -nbm "optscale" "LxY83mXr") 
+--set nginx.passwd=$(htpasswd -nbm "optscale" "<SOME_PASSWORD>") 
 monitoring .`
 
 ### 3. Kubernetes YAML (LoadBalancer based configuration)
@@ -34,6 +34,6 @@ Parameter | Description | Default
 nginx.enabled | if `false`, use another way to expose the Prometheus port | `true`
 nginx.service.type | `NodePort` or `LoadBalancer` | `LoadBalancer`
 nginx.service.internalPort | Internal NGINX Server Port Number | `4433`
-nginx.passwd | MD5 hash of the username and password to login to the Agent metrics | `optscale:$apr1$VELgzrP7$YYedDiHsEmoQ/xcUhWkrO0` -> `optscale:LxY83mXr`
+nginx.passwd | MD5 hash of the username and password to login to the Agent metrics | `optscale:<SOME_MD5_PASSWORD>`
 nginx.service.enabledExternalPort | use `true` for `NodePort` and `false` - `LoadBalancer`| `false`
 nginx.service.externalPort | Agent external Node port number | `31222`
