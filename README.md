@@ -1,13 +1,22 @@
 ## Prerequisites
 
 - Kubernetes 1.16+
-- Helm 3+
 
 ## Description
 Helm chart for the OptScale Kubernetes Collector project, which is created to collect Kubernetes resources information and share it with OptScale FinOps project - https://hystax.com/optscale/.
 
-## Install configurations
-### 1. NodePort example (recommended for virtual machines based clusters):
+## Kubernetes YAML (LoadBalancer based configuration)
+These resources can be deployed with the following single command:
+
+`kubectl apply -f https://raw.githubusercontent.com/hystax/optscale-k8s-collector-helm-chart/master/optscale-agent.yaml`
+
+## Helm install configurations
+
+### Helm Prerequisites
+
+- Helm 3+
+
+### NodePort example (recommended for virtual machines based clusters):
 `helm install --namespace optscale --create-namespace 
 --set nginx.service.type=NodePort 
 --set nginx.service.enabledExternalPort=true 
@@ -15,16 +24,11 @@ Helm chart for the OptScale Kubernetes Collector project, which is created to co
 --set nginx.passwd=$(htpasswd -nbm "optscale" "<SOME_PASSWORD>") 
 monitoring .`
 
-### 2. LoadBalancer example (recommended for cloud based clusters):
+### LoadBalancer example (recommended for cloud based clusters):
 `helm install --namespace optscale --create-namespace 
 --set nginx.service.internalPort=4433 
 --set nginx.passwd=$(htpasswd -nbm "optscale" "<SOME_PASSWORD>") 
 monitoring .`
-
-### 3. Kubernetes YAML (LoadBalancer based configuration)
-While Helm is the recommended install path, these resources can also be deployed with the following single command:
-
-`kubectl apply -f https://github.com/hystax/optscale-k8s-collector-helm-chart/optscale-agent.yaml`
 
 ## Helm chart parameters
 The following table lists the commonly used configurable parameters of the Helm chart and their default values.
