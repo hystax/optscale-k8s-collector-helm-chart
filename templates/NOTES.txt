@@ -1,0 +1,10 @@
+The OptScale agent can be accessed via port {{ .Values.nginx.service.externalPort }}:
+{{ if eq .Values.nginx.service.type "LoadBalancer" }}
+https://<NGINX LoadBalancer Service External IP>:{{ .Values.nginx.service.internalPort }}
+{{ end }}
+{{ if eq .Values.nginx.service.type "NodePort" }}
+https://<CLUSTER IP or Domain Name>:{{ .Values.nginx.service.externalPort }}
+{{ end }}
+
+For more information on Hystax, visit:
+https://hystax.com/

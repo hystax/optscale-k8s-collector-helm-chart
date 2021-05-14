@@ -1,0 +1,31 @@
+nginx:
+  enabled: true
+  name: nginx
+  replicaCount: 1
+  internalPort: 443
+  passwd: optscale:<SOME_MD5_PASSWORD>
+  service:
+    type: LoadBalancer
+    enabledExternalPort: false
+    externalPort: 31222
+    internalPort: 4433
+  agent_nginx:
+    image:
+      repository: nginx
+      tag: 1.17.1
+      pullPolicy: IfNotPresent
+
+prometheus:
+  kubeStateMetrics:
+    enabled: false
+  serviceAccounts:
+    alertmanager:
+      create: false
+  server:
+    persistentVolume:
+      enabled: false
+  pushgateway:
+    persistentVolume:
+      enabled: false
+  alertmanager:
+    enabled: false
