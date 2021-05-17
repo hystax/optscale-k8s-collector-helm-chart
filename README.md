@@ -1,3 +1,12 @@
+#  OptScale Kubernetes Cost Mertics Collector
+
+Ready-to-deploy setup of components necessary for kubernetes cost management and FinOps in Hystax OptScale.
+
+Components
+- Prometheus
+- Prometheus node-exporter module
+- kube-state-metrics
+- nginx (optional, for setting up authentication)
 ## Prerequisites
 
 - Kubernetes 1.16+
