@@ -1,4 +1,6 @@
-#  OptScale Kubernetes Cost Mertics Collector
+#  (obsolete) OptScale Kubernetes Cost Metrics Collector
+
+> This approach of k8s cost metrict collection for OptScale is obsolete due to multiple architectural flaws. Reworked implementation can be found here - https://github.com/hystax/helm-charts/tree/main/charts/kube-cost-metrics-collector
 
 Ready-to-deploy setup of components necessary for kubernetes cost management and FinOps in Hystax OptScale.
 
